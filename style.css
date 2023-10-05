@@ -101,6 +101,24 @@ table {
     padding: 8px;
   }
   
-  tr:nth-child(even) {
+  /* tr:nth-child(even) {
     background-color: #dddddd;
-  }
+  } */
+
+
+
+.task {
+    padding-right: 25px;
+}
+
+.task-icon{
+    padding-right: 10px;
+}
+
+.start-date{
+    padding-right: 0;
+}
+
+.end-date{
+
+}
