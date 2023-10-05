@@ -27,7 +27,7 @@ body {
   .page-header {
     padding: 5rem 0;
     width: 100%;
-    background: #FF33AE;
+    background: #3f37c9;
   }
   .wrapper {
     max-width: 570px;
@@ -69,10 +69,10 @@ body {
     border-radius: 3px;
     color: white;
     font-weight: bold;
-    background: #FF33AE;
+    background: #3f37c9;
     flex: 1;
     margin-left: 10px;
-    border: 1px solid #FF33AE;
+    border: 1px solid #3f37c9;
   }
   
 
