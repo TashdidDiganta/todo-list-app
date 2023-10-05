@@ -1,6 +1,5 @@
 
-// all section
-
+// ALL ELEMENT
 const search = document.getElementById('search-input'); 
 const todo = document.getElementById('todo-input'); 
 const addTodo = document.getElementById('add-todo'); 
@@ -13,8 +12,7 @@ const getSavedTodo = getLocalStorageData('todo') != null? getLocalStorageData('t
 showTodo(getSavedTodo)
 
 
-
-// search todo
+// SEARCH TODO
 function searchTodo(key){
     const localData = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
     const filterData = localData.filter(task => task.todo.toLowerCase().includes(key.toLowerCase()));
@@ -23,9 +21,14 @@ function searchTodo(key){
 }
 
 search.addEventListener('keyup', function(event){
-    const keyword = event.target.value;
+    const keyword = event.target.value
     const searchList = searchTodo(keyword);
-    showTodo(searchList);
+    if(searchList == ''){
+        alert('No Task added')
+        search.value = ''
+    } else{
+        showTodo(searchList);
+    }
 })
 
 
@@ -34,17 +37,59 @@ search.addEventListener('keyup', function(event){
 // set todo with click 
 addTodo.addEventListener('click', ()=>{
     const todoValue = todo.value;
-    const updateArray =  addData(todoValue)
-    setLocalStorageData(updateArray)
-    showTodo(updateArray)
-    todo.value = '';
+    if(todoValue ==''){
+        alert('Please Add Task')
+    } else{
+        const updateArray =  addData(todoValue)
+        setLocalStorageData(updateArray)
+        showTodo(updateArray)
+        todo.value = '';
+    }
 })
+
+// COMPLITED TASK
+function checkedTodo(){
+    const taskStatus = document.querySelectorAll(change-status)
+
+    taskStatus.forEach(e =>{
+        e.addEventListener('change', function(event){
+            const checkedInput = event.target.checked;
+            if(checkedInput == true){
+                console.log('yes')
+            } else{
+                console.log('no')
+            }
+            const dataId = event.target.parentElement.getAttribute('data-id');
+            const status = checkedInput? "checked" : 'inchecked'
+
+            // set new time
+            const d = new Date()
+            const time = d.toLocaleDateString('en-us', {
+            });
+
+            const getLists = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
+            getLists.forEach(todo =>{
+                if(todo.id == dataId){
+                    return{ ...todo, isComplit: status, end_date:time}
+                }
+                return todo;
+            });
+
+            setLocalStorageData(getLists);
+            showTodo(getLists);
+
+        })
+    })
+}
 
 
 
 // set todo with enter
 todo.addEventListener('keyup', function(event){
-    if(event.key == 'Enter'){
+    const todoValue = todo.value;
+    if(todoValue ==''){
+        alert('Please Add Task')
+    } else if (event.key == 'Enter' ){
         const todoValue = todo.value;
         const updateArray =  addData(todoValue)
         setLocalStorageData(updateArray)
@@ -54,17 +99,12 @@ todo.addEventListener('keyup', function(event){
 })
 
 
-
-
-
-
 // add data to array
 function addData(task_name){
     const d = new Date()
     const time = d.toLocaleDateString('en-us', {
- 
-    })
-    const object = {id: Math.random(), todo: task_name, startDate: time}
+    });
+    const object = {id: Math.random(), todo: task_name, isComplit:'incomplited', startDate: time, end_date: ''}
     const getLocalData = getLocalStorageData('todo') 
     if(getLocalData === null || getLocalData ===""){
         return [object]
@@ -74,7 +114,6 @@ function addData(task_name){
       }
 
 }
-
 
 
 // GET DATA FROM LOCAL STORAGE
@@ -92,13 +131,20 @@ function setLocalStorageData(setData){
 
 // show todo into dom
 function showTodo(value){
-    let data = ' '
+    const d = new Date()
+    const time = d.toLocaleDateString('en-us', {
+        hour : 'numeric'
+    });
+
+    let data = ''
     value.map(task =>{
-      data +=`<tr data-id=${task.id}>
-            <td><input type="checkbox" name="" id=""> </td>
+      data +=`<tr>
+            <td data-id=${task.id}>
+              <input type="checkbox" class="change-status" ${task.isComplit =='complited'? 'checked':''}>
+             </td>
             <td>${task.todo}</td>
             <td>${task.startDate}</td>
-            <td>X</td>
+            <td>${task.isComplit =='complited'?  time : 'X'}</td>
         </tr>`
     })
 
