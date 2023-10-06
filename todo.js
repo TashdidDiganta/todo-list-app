@@ -10,6 +10,7 @@ const todoList = document.getElementById('todo-list');
 
 const getSavedTodo = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
 showTodo(getSavedTodo)
+checkedTodo()
 
 
 // SEARCH TODO
@@ -44,44 +45,9 @@ addTodo.addEventListener('click', ()=>{
         setLocalStorageData(updateArray)
         showTodo(updateArray)
         todo.value = '';
+        checkedTodo();
     }
 })
-
-// COMPLITED TASK
-function checkedTodo(){
-    const taskStatus = document.querySelectorAll(change-status)
-
-    taskStatus.forEach(e =>{
-        e.addEventListener('change', function(event){
-            const checkedInput = event.target.checked;
-            if(checkedInput == true){
-                console.log('yes')
-            } else{
-                console.log('no')
-            }
-            const dataId = event.target.parentElement.getAttribute('data-id');
-            const status = checkedInput? "checked" : 'inchecked'
-
-            // set new time
-            const d = new Date()
-            const time = d.toLocaleDateString('en-us', {
-            });
-
-            const getLists = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
-            getLists.forEach(todo =>{
-                if(todo.id == dataId){
-                    return{ ...todo, isComplit: status, end_date:time}
-                }
-                return todo;
-            });
-
-            setLocalStorageData(getLists);
-            showTodo(getLists);
-
-        })
-    })
-}
-
 
 
 // set todo with enter
@@ -95,8 +61,47 @@ todo.addEventListener('keyup', function(event){
         setLocalStorageData(updateArray)
         showTodo(updateArray)
         todo.value = '';
+        checkedTodo();
     }
 })
+
+
+// COMPLITED TASK
+function checkedTodo(){
+    const taskStatus = document.querySelectorAll('.change-status');
+
+    taskStatus.forEach( function(e){
+        e.addEventListener('change', function(event){
+            const checkedInput = event.target.checked;
+            const dataId = event.target.parentElement.getAttribute('data-id');
+            const status = checkedInput? "complited" : 'incomplete';
+
+           
+
+            // set new time
+            const d = new Date()
+            const time = d.toLocaleDateString('en-us', {
+                'minute' : 'numeric'
+            });
+
+            const getLists = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
+          const updateList = getLists.map(function(todo){
+                if(todo.id == dataId){
+                    return{...todo, isComplit: status, end_date:time}
+                    
+                }
+                return todo;
+            });
+
+            setLocalStorageData(updateList);
+            showTodo(updateList);
+
+        })
+    })
+}
+
+
+
 
 
 // add data to array
@@ -136,9 +141,13 @@ function showTodo(value){
         hour : 'numeric'
     });
 
+ 
+
+
+
     let data = ''
     value.map(task =>{
-      data +=`<tr>
+      data +=`<tr class="mystyle">
             <td data-id=${task.id}>
               <input type="checkbox" class="change-status" ${task.isComplit =='complited'? 'checked':''}>
              </td>
