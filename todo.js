@@ -147,7 +147,7 @@ function showTodo(value){
 
     let data = ''
     value.map(task =>{
-      data +=`<tr class="mystyle">
+      data +=`<tr class=${task.isComplit =='complited'?  'mystyle' : ''}>
             <td data-id=${task.id}>
               <input type="checkbox" class="change-status" ${task.isComplit =='complited'? 'checked':''}>
              </td>
