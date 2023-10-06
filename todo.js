@@ -141,10 +141,6 @@ function showTodo(value){
         hour : 'numeric'
     });
 
- 
-
-
-
     let data = ''
     value.map(task =>{
       data +=`<tr class=${task.isComplit =='complited'?  'mystyle' : ''}>

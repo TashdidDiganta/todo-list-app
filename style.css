@@ -78,6 +78,10 @@ body {
 
 /* Add todo section */
 
+.top-header{
+  
+}
+
 .todo-list{
     overflow-x: hidden;
     height: 340px;
