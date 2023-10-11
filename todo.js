@@ -4,13 +4,15 @@ const search = document.getElementById('search-input');
 const todo = document.getElementById('todo-input'); 
 const addTodo = document.getElementById('add-todo'); 
 const todoList = document.getElementById('todo-list'); 
+const todoListTr = document.querySelector('#todo-list tbody'); 
 
 
 
 
 const getSavedTodo = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
-showTodo(getSavedTodo)
+showTodoList(getSavedTodo)
 checkedTodo()
+sortableRow()
 
 
 // SEARCH TODO
@@ -28,7 +30,7 @@ search.addEventListener('keyup', function(event){
         alert('No Task added')
         search.value = ''
     } else{
-        showTodo(searchList);
+        showTodoList(searchList);
     }
 })
 
@@ -43,7 +45,8 @@ addTodo.addEventListener('click', ()=>{
     } else{
         const updateArray =  addData(todoValue)
         setLocalStorageData(updateArray)
-        showTodo(updateArray)
+        showTodoList(updateArray)
+        // showTodo(todoValue)
         todo.value = '';
         checkedTodo();
     }
@@ -59,9 +62,11 @@ todo.addEventListener('keyup', function(event){
         const todoValue = todo.value;
         const updateArray =  addData(todoValue)
         setLocalStorageData(updateArray)
-        showTodo(updateArray)
+        showTodoList(updateArray)
+        // showTodo(todoValue)
         todo.value = '';
         checkedTodo();
+        sortableRow();
     }
 })
 
@@ -85,7 +90,7 @@ function checkedTodo(){
             });
 
             const getLists = getLocalStorageData('todo') != null? getLocalStorageData('todo') : [];
-          const updateList = getLists.map(function(todo){
+            const updateList = getLists.map(function(todo){
                 if(todo.id == dataId){
                     return{...todo, isComplit: status, end_date:time}
                     
@@ -94,14 +99,11 @@ function checkedTodo(){
             });
 
             setLocalStorageData(updateList);
-            showTodo(updateList);
+            showTodoList(updateList);
 
         })
     })
 }
-
-
-
 
 
 // add data to array
@@ -135,23 +137,97 @@ function setLocalStorageData(setData){
 
 
 // show todo into dom
+function showTodoList(value){
+    const d = new Date()
+    const time = d.toLocaleDateString('en-us', {
+        hour : 'numeric'
+    });
+    let data = `<tr class="top-header">
+                <th class="task-icon">Status <img src="assets/check-mark.png" class="icon"  alt=""></th>
+                <th class="task">Task</th>
+                <th class="start-date">Start Date</th>
+                <th class="end-date">End Date</th>
+            </tr>`;
+
+    value.map(task =>{
+        if(task != null){
+            data +=`<tr data-value='${JSON.stringify(task)}' class=${task.isComplit =='complited'?  'mystyle' : ''}>
+                <td data-id=${task.id}>
+                <input type="checkbox" class="change-status" ${task.isComplit =='complited'? 'checked':''}>
+                </td>
+                <td>${task.todo}</td>
+                <td>${task.startDate}</td>
+                <td>${task.isComplit =='complited'?  time : 'X'}</td>
+            </tr>`
+        }
+    })
+    todoList.innerHTML = data;
+    checkedTodo();
+}
+
+// show todo into dom
 function showTodo(value){
     const d = new Date()
     const time = d.toLocaleDateString('en-us', {
         hour : 'numeric'
     });
+    const todo = {id: Math.ceil(Math.random() * 1000000), todo: value, isComplit:'incomplited', startDate: time, end_date: '' }
 
-    let data = ''
-    value.map(task =>{
-      data +=`<tr class=${task.isComplit =='complited'?  'mystyle' : ''}>
-            <td data-id=${task.id}>
-              <input type="checkbox" class="change-status" ${task.isComplit =='complited'? 'checked':''}>
+    let data = `<tr data-value='${JSON.stringify(todo)}' class=${todo.isComplit =='complited'?  'mystyle' : ''}>
+            <td data-id=${todo.id}>
+              <input type="checkbox" class="change-status" ${todo.isComplit =='complited'? 'checked':''}>
              </td>
-            <td>${task.todo}</td>
-            <td>${task.startDate}</td>
-            <td>${task.isComplit =='complited'?  time : 'X'}</td>
-        </tr>`
+            <td>${todo.todo}</td>
+            <td>${todo.startDate}</td>
+            <td>${todo.isComplit =='complited'?  time : 'X'}</td>
+        </tr>`;
+
+    todoList.innerHTML += data
+    checkedTodo();
+}
+
+function sortableRow(){
+    const todoRow = document.querySelectorAll('#todo-list tbody tr:not(.top-header)');
+    const tBody = document.querySelector('#todo-list tbody'); 
+    todoRow.forEach( el => {
+        el.setAttribute('draggable', true);
+        el.addEventListener("dragstart", () => {
+            setTimeout( () => el.classList.add('dragging'), 0)
+        });
+        el.addEventListener("dragend", () => {
+            el.classList.remove('dragging')
+        });
     })
 
-    todoList.innerHTML = data
+    const initSortableList = (e) => {
+        e.preventDefault();
+        const draggingItem = document.querySelector(".dragging");
+        // Getting all items except currently dragging and making array of them
+        let siblings = [...tBody.querySelectorAll("#todo-list tbody tr:not(.dragging)")];
+        // Finding the sibling after which the dragging item should be placed
+        let nextSibling = siblings.find(sibling => {
+            console.log(sibling.offsetTop + sibling.offsetHeight / 2)
+            return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+        });
+        console.log(e.clientY)
+        // Inserting the dragging item before the found sibling
+        tBody.insertBefore(draggingItem, nextSibling);
+    }
+    tBody.addEventListener("dragover", initSortableList);
+    tBody.addEventListener("dragenter", e => e.preventDefault());
 }
+
+
+// new Sortable(document.querySelector('#todo-list tbody'), {
+//     group: 'shared', // set both lists to same group
+//     animation: 150,
+//     onEnd:function(e){
+//         const newList = document.querySelectorAll('#todo-list tbody tr');
+//         const newArrangdList = [];
+//         newList.forEach(function(el){
+//             newArrangdList.push(JSON.parse(el.getAttribute('data-value')))
+//         })
+
+//         setLocalStorageData(newArrangdList);
+//     }
+// });
